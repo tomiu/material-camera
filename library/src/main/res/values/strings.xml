@@ -5,6 +5,7 @@
     <string name="mcam_video_perm_warning">Permission to access your microphone and camera is needed, the camera will now close.</string>
     <string name="mcam_retry">RETRY</string>
     <string name="mcam_use_video">USE VIDEO</string>
+    <string name="mcam_use_stillshot">USE STILLSHOT</string>
     <string name="mcam_portrait">Portrait</string>
     <string name="mcam_portrait_warning">It\'s recommended that you record in landscape. Record in portrait?</string>
     <string name="mcam_yes">Yes</string>

@@ -147,7 +147,7 @@ public abstract class BaseCaptureActivity extends AppCompatActivity implements B
     @Override
     public final void onBackPressed() {
         Fragment frag = getFragmentManager().findFragmentById(R.id.container);
-        if (frag != null && frag instanceof PlaybackVideoFragment && allowRetry()) {
+        if (frag != null && frag instanceof BaseGalleryFragment && allowRetry()) {
             onRetry(((CameraUriInterface) frag).getOutputUri());
             return;
         }
@@ -298,6 +298,15 @@ public abstract class BaseCaptureActivity extends AppCompatActivity implements B
     }
 
     @Override
+    public void onShowStillshot(String outputUri) {
+        Fragment frag = StillshotPreviewFragment.newInstance(outputUri, allowRetry(),
+                getIntent().getIntExtra(CameraIntentKey.PRIMARY_COLOR, 0));
+        getFragmentManager().beginTransaction()
+                .replace(R.id.container, frag)
+                .commit();
+    }
+
+    @Override
     public final boolean allowRetry() {
         return getIntent().getBooleanExtra(CameraIntentKey.ALLOW_RETRY, true);
     }
@@ -387,5 +396,10 @@ public abstract class BaseCaptureActivity extends AppCompatActivity implements B
     @Override
     public int videoPreferredHeight() {
         return getIntent().getIntExtra(CameraIntentKey.VIDEO_PREFERRED_HEIGHT, 720);
+    }
+
+    @Override
+    public boolean useStillshot() {
+        return getIntent().getBooleanExtra(CameraIntentKey.STILL_SHOT, false);
     }
 }

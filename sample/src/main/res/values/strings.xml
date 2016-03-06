@@ -1,7 +1,8 @@
 <resources>
 
     <string name="app_name">Material Camera Sample</string>
-    <string name="launch_camera">Launch Camera</string>
+    <string name="launch_camera">Launch Camera for recording</string>
+    <string name="launch_camera_stillshot">Launch Camera for stillshot</string>
     <string name="length_limit">Length Limit</string>
     <string name="zero_minutes">0 minutes</string>
     <string name="allow_retry">Allow Retry</string>

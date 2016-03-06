@@ -11,6 +11,8 @@ public interface BaseCaptureInterface {
 
     void onShowPreview(@Nullable String outputUri, boolean countdownIsAtZero);
 
+    void onShowStillshot(String outputUri);
+
     void setRecordingStart(long start);
 
     void setRecordingEnd(long end);
@@ -63,4 +65,10 @@ public interface BaseCaptureInterface {
     int videoPreferredHeight();
 
     float videoPreferredAspect();
+
+    /**
+     *
+     * @return true if we only want to take photographs instead of video capture
+     */
+    boolean useStillshot();
 }

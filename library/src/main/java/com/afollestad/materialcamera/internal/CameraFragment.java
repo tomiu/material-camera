@@ -14,10 +14,13 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.afollestad.materialcamera.ICallback;
 import com.afollestad.materialcamera.R;
 import com.afollestad.materialcamera.util.CameraUtil;
 import com.afollestad.materialcamera.util.Degrees;
+import com.afollestad.materialcamera.util.ImageUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -217,14 +220,18 @@ public class CameraFragment extends BaseCameraFragment implements View.OnClickLi
                 info.orientation, deviceOrientation, mDisplayOrientation));
 
         int previewOrientation;
+        int jpegOrientation;
         if (CameraUtil.isArcWelder()) {
             previewOrientation = 0;
+            jpegOrientation = 0;
         } else {
-            previewOrientation = mDisplayOrientation;
+            jpegOrientation = previewOrientation = mDisplayOrientation;
+
             if (Degrees.isPortrait(deviceOrientation) && getCurrentCameraPosition() == CAMERA_POSITION_FRONT)
                 previewOrientation = Degrees.mirror(mDisplayOrientation);
         }
-        parameters.setRotation(previewOrientation);
+
+        parameters.setRotation(jpegOrientation);
         mCamera.setDisplayOrientation(previewOrientation);
     }
 
@@ -398,6 +405,61 @@ public class CameraFragment extends BaseCameraFragment implements View.OnClickLi
             mInterface.onShowPreview(mOutputUri, reachedZero);
 
         stopCounter();
+    }
+
+    @Override
+    public void takeStillshot() {
+        super.takeStillshot();
+        //TODO: add flash light
+
+        //https://github.com/josnidhin/Android-Camera-Example/blob/master/src/com/example/cam/CamTestActivity.java
+        final String TAG = "takeStillShot";
+
+        Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
+            public void onShutter() {
+//                			 Log.d(TAG, "onShutter'd");
+            }
+        };
+
+        Camera.PictureCallback rawCallback = new Camera.PictureCallback() {
+            public void onPictureTaken(byte[] data, Camera camera) {
+//                			 Log.d(TAG, "onPictureTaken - raw. Raw is null: " + (data == null));
+            }
+        };
+
+        Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
+            public void onPictureTaken(final byte[] data, Camera camera) {
+//                Log.d(TAG, "onPictureTaken - jpeg, size: " + data.length);
+
+                final File outputPic = getOutputPictureFile();
+
+                // lets save the image to disk
+                ImageUtils.saveToDiskAsync(data, outputPic, new ICallback() {
+                    @Override
+                    public void done(Exception e) {
+                        if (e == null) {
+                            Log.d(TAG, "picture saved to disk - jpeg, size: " + data.length);
+                            mOutputUri = Uri.fromFile(outputPic).toString();
+                            mInterface.onShowStillshot(mOutputUri);
+
+//                            mCamera.startPreview();
+                            mButtonStillshot.setEnabled(true);
+                        } else {
+                            throwError(e);
+                        }
+                    }
+                });
+            }
+        };
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            //We could have configurable shutter sound here
+
+            //mCamera.enableShutterSound(false);
+        }
+        
+        mButtonStillshot.setEnabled(false);
+        mCamera.takePicture(shutterCallback, rawCallback, jpegCallback);
     }
 
     static class CompareSizesByArea implements Comparator<Camera.Size> {

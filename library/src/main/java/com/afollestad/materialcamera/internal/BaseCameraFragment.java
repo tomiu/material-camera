@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,8 +32,13 @@ import static com.afollestad.materialcamera.internal.BaseCaptureActivity.CAMERA_
  * @author Aidan Follestad (afollestad)
  */
 abstract class BaseCameraFragment extends Fragment implements CameraUriInterface, View.OnClickListener {
+    /**
+     * Handler to UI thread.
+     */
+    final Handler mUiHandler = new Handler(Looper.getMainLooper());
 
     protected ImageButton mButtonVideo;
+    protected ImageButton mButtonStillshot;
     protected ImageButton mButtonFacing;
     protected TextView mRecordDuration;
 
@@ -80,6 +86,7 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
         super.onViewCreated(view, savedInstanceState);
 
         mButtonVideo = (ImageButton) view.findViewById(R.id.video);
+        mButtonStillshot = (ImageButton) view.findViewById(R.id.stillshot);
         mButtonFacing = (ImageButton) view.findViewById(R.id.facing);
         if (CameraUtil.isArcWelder())
             mButtonFacing.setVisibility(View.GONE);
@@ -94,6 +101,7 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
         }
 
         mButtonVideo.setOnClickListener(this);
+        mButtonStillshot.setOnClickListener(this);
         mButtonFacing.setOnClickListener(this);
 
         final int primaryColor = getArguments().getInt(CameraIntentKey.PRIMARY_COLOR);
@@ -101,12 +109,20 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
 
         if (savedInstanceState != null)
             mOutputUri = savedInstanceState.getString("output_uri");
+
+        if (mInterface.useStillshot()) {
+            mButtonVideo.setVisibility(View.GONE);
+            mRecordDuration.setVisibility(View.GONE);
+            mButtonStillshot.setVisibility(View.VISIBLE);
+            mButtonStillshot.setImageDrawable(VC.get(this, R.drawable.mcam_action_stillshot));
+        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         mButtonVideo = null;
+        mButtonStillshot = null;
         mButtonFacing = null;
         mRecordDuration = null;
     }
@@ -135,6 +151,11 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
     @NonNull
     protected final File getOutputMediaFile() {
         return CameraUtil.makeTempFile(getActivity(), getArguments().getString(CameraIntentKey.SAVE_DIR), ".mp4");
+    }
+
+    @NonNull
+    protected final File getOutputPictureFile() {
+        return CameraUtil.makeTempFile(getActivity(), getArguments().getString(CameraIntentKey.SAVE_DIR), ".jpg");
     }
 
     public abstract void openCamera();
@@ -218,6 +239,11 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
+    public void takeStillshot() {
+
+    }
+
+
     @Override
     public final void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -239,13 +265,14 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.facing) {
+        final int id = view.getId();
+        if (id == R.id.facing) {
             mInterface.toggleCameraPosition();
             mButtonFacing.setImageDrawable(VC.get(this, mInterface.getCurrentCameraPosition() == BaseCaptureActivity.CAMERA_POSITION_BACK ?
                     R.drawable.mcam_camera_front : R.drawable.mcam_camera_rear));
             closeCamera();
             openCamera();
-        } else if (view.getId() == R.id.video) {
+        } else if (id == R.id.video) {
             if (mIsRecording) {
                 stopRecordingVideo(false);
                 mIsRecording = false;
@@ -268,6 +295,8 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
                     mIsRecording = startRecordingVideo();
                 }
             }
+        } else if (id == R.id.stillshot) {
+            takeStillshot();
         }
     }
 }

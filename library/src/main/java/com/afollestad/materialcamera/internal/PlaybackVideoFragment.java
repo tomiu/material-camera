@@ -27,23 +27,18 @@ import com.devbrackets.android.exomedia.util.EMEventBus;
 /**
  * @author Aidan Follestad (afollestad)
  */
-public class PlaybackVideoFragment extends Fragment implements
-        CameraUriInterface, View.OnClickListener, EMEventBus,
+public class PlaybackVideoFragment extends BaseGalleryFragment implements
+        EMEventBus,
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
     private TextView mPosition;
     private SeekBar mPositionSeek;
     private TextView mDuration;
     private ImageButton mPlayPause;
-    private View mRetry;
-    private View mUseVideo;
-    private View mControlsFrame;
     private EMVideoView mStreamer;
     private TextView mPlaybackContinueCountdownLabel;
 
-    private String mOutputUri;
     private boolean mWasPlaying;
-    private BaseCaptureInterface mInterface;
     private boolean mFinishedPlaying;
 
     private Handler mCountdownHandler;
@@ -68,12 +63,6 @@ public class PlaybackVideoFragment extends Fragment implements
         }
     };
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        mInterface = (BaseCaptureInterface) activity;
-    }
 
     public static PlaybackVideoFragment newInstance(String outputUri, boolean allowRetry, int primaryColor) {
         PlaybackVideoFragment fragment = new PlaybackVideoFragment();
@@ -86,12 +75,7 @@ public class PlaybackVideoFragment extends Fragment implements
         return fragment;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (getActivity() != null)
-            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-    }
+
 
     @Nullable
     @Override
@@ -107,9 +91,7 @@ public class PlaybackVideoFragment extends Fragment implements
         mPositionSeek = (SeekBar) view.findViewById(R.id.positionSeek);
         mDuration = (TextView) view.findViewById(R.id.duration);
         mPlayPause = (ImageButton) view.findViewById(R.id.playPause);
-        mRetry = view.findViewById(R.id.retry);
-        mUseVideo = view.findViewById(R.id.useVideo);
-        mControlsFrame = view.findViewById(R.id.controlsFrame);
+
         mStreamer = (EMVideoView) view.findViewById(R.id.playbackView);
         mPlaybackContinueCountdownLabel = (TextView) view.findViewById(R.id.playbackContinueCountdownLabel);
 
@@ -117,10 +99,6 @@ public class PlaybackVideoFragment extends Fragment implements
         mRetry.setOnClickListener(this);
         mPlayPause.setOnClickListener(this);
         mUseVideo.setOnClickListener(this);
-
-        int primaryColor = CameraUtil.darkenColor(getArguments().getInt(CameraIntentKey.PRIMARY_COLOR));
-        primaryColor = Color.argb((int) (255 * 0.75f), Color.red(primaryColor), Color.green(primaryColor), Color.blue(primaryColor));
-        mControlsFrame.setBackgroundColor(primaryColor);
 
         mRetry.setVisibility(getArguments().getBoolean(CameraIntentKey.ALLOW_RETRY, true) ? View.VISIBLE : View.GONE);
         mPositionSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -151,7 +129,6 @@ public class PlaybackVideoFragment extends Fragment implements
             }
         });
         MDTintHelper.setTint(mPositionSeek, Color.WHITE);
-        mOutputUri = getArguments().getString("output_uri");
 
         if (mInterface.hasLengthLimit() && mInterface.shouldAutoSubmit() &&
                 mInterface.continueTimerInPlayback()) {
@@ -312,19 +289,10 @@ public class PlaybackVideoFragment extends Fragment implements
                 errorMsg += "Unsupported";
                 break;
         }
-        new MaterialDialog.Builder(getActivity())
-                .title("Playback Error")
-                .content(errorMsg)
-                .positiveText(android.R.string.ok)
-                .show();
+        String title = "Playback Error";
+        showDialog(title, errorMsg);
         return false;
     }
-
-    @Override
-    public String getOutputUri() {
-        return getArguments().getString("output_uri");
-    }
-
     @Override
     public void onCompletion(MediaPlayer mp) {
         mFinishedPlaying = true;

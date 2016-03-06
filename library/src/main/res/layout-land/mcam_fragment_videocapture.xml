@@ -49,6 +49,18 @@
             tools:ignore="ContentDescription"
             tools:src="@drawable/mcam_action_capture" />
 
+        <ImageButton
+            android:id="@+id/stillshot"
+            android:visibility="gone"
+            android:layout_width="@dimen/mcam_action_icon_size"
+            android:layout_height="@dimen/mcam_action_icon_size"
+            android:layout_gravity="center"
+            android:background="@drawable/mcam_circle_selector"
+            android:padding="@dimen/mcam_content_inset_less"
+            android:scaleType="fitXY"
+            tools:src="@drawable/mcam_action_stillshot"
+            tools:ignore="ContentDescription" />
+
         <TextView
             android:id="@+id/recordDuration"
             android:layout_width="wrap_content"

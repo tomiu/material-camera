@@ -41,6 +41,8 @@ public class MaterialCamera {
     private boolean mRestartTimerOnRetry = false;
     private boolean mContinueTimerInPlayback = true;
     private boolean mForceCamera1 = false;
+    private boolean mStillShot;
+
 
     private int mVideoBitRate = -1;
     private int mVideoFrameRate = -1;
@@ -178,8 +180,21 @@ public class MaterialCamera {
         return this;
     }
 
+    /**
+     * Will take a still shot instead of recording
+     * Note: Current implementation will default to using Camera1 API.
+     * Also the library owner has chosen to disregard the Camera2 API regardless of settings, so
+     * this is a non issue anyway.
+     * @return
+     */
+    public MaterialCamera stillShot() {
+        mStillShot = true;
+        return this;
+    }
+
+
     public Intent getIntent() {
-        final Class<?> cls = !mForceCamera1 && CameraUtil.hasCamera2(mContext) ?
+        final Class<?> cls = !mStillShot && !mForceCamera1 && CameraUtil.hasCamera2(mContext) ?
                 CaptureActivity2.class : CaptureActivity.class;
         Intent intent = new Intent(mContext, cls)
                 .putExtra(CameraIntentKey.LENGTH_LIMIT, mLengthLimit)
@@ -192,7 +207,8 @@ public class MaterialCamera {
                 .putExtra(CameraIntentKey.COUNTDOWN_IMMEDIATELY, mCountdownImmediately)
                 .putExtra(CameraIntentKey.RETRY_EXITS, mRetryExists)
                 .putExtra(CameraIntentKey.RESTART_TIMER_ON_RETRY, mRestartTimerOnRetry)
-                .putExtra(CameraIntentKey.CONTINUE_TIMER_IN_PLAYBACK, mContinueTimerInPlayback);
+                .putExtra(CameraIntentKey.CONTINUE_TIMER_IN_PLAYBACK, mContinueTimerInPlayback)
+                .putExtra(CameraIntentKey.STILL_SHOT, mStillShot);
 
         if (mVideoBitRate > 0)
             intent.putExtra(CameraIntentKey.VIDEO_BIT_RATE, mVideoBitRate);
