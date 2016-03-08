@@ -197,6 +197,8 @@ public class CameraFragment extends BaseCameraFragment implements View.OnClickLi
             parameters.setPreviewSize(previewSize.width, previewSize.height);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
                 parameters.setRecordingHint(true);
+            Camera.Size mStillShotSize = getHighestSupportedStillShotSize(parameters.getSupportedPictureSizes());
+            parameters.setPictureSize(mStillShotSize.width, mStillShotSize.height);
             setCameraDisplayOrientation(parameters);
             mCamera.setParameters(parameters);
             createPreview();
@@ -206,6 +208,11 @@ public class CameraFragment extends BaseCameraFragment implements View.OnClickLi
         } catch (RuntimeException e2) {
             throwError(new Exception("Cannot access the camera, you may need to restart your device.", e2));
         }
+    }
+
+    private Camera.Size getHighestSupportedStillShotSize(List<Camera.Size> supportedPictureSizes) {
+        Camera.Size maxSize = supportedPictureSizes.get(supportedPictureSizes.size() - 1); //TODO: find the biggest resolution
+        return maxSize;
     }
 
     @SuppressWarnings("WrongConstant")
