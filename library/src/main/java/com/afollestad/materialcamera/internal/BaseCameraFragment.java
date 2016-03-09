@@ -150,12 +150,12 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
 
     @NonNull
     protected final File getOutputMediaFile() {
-        return CameraUtil.makeTempFile(getActivity(), getArguments().getString(CameraIntentKey.SAVE_DIR), ".mp4");
+        return CameraUtil.makeTempFile(getActivity(), getArguments().getString(CameraIntentKey.SAVE_DIR), "VID_", ".mp4");
     }
 
     @NonNull
     protected final File getOutputPictureFile() {
-        return CameraUtil.makeTempFile(getActivity(), getArguments().getString(CameraIntentKey.SAVE_DIR), ".jpg");
+        return CameraUtil.makeTempFile(getActivity(), getArguments().getString(CameraIntentKey.SAVE_DIR), "IMG_", ".jpg");
     }
 
     public abstract void openCamera();

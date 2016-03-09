@@ -50,13 +50,13 @@ public class CameraUtil {
     }
 
     @SuppressWarnings({"ConstantConditions", "ResultOfMethodCallIgnored"})
-    public static File makeTempFile(@NonNull Context context, @Nullable String saveDir, String extension) {
+    public static File makeTempFile(@NonNull Context context, @Nullable String saveDir, String prefix, String extension) {
         if (saveDir == null)
             saveDir = context.getExternalCacheDir().getAbsolutePath();
         final String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         final File dir = new File(saveDir);
         dir.mkdirs();
-        return new File(dir, "VID_" + timeStamp + extension);
+        return new File(dir, prefix + timeStamp + extension);
     }
 
     public static boolean hasCamera(Context context) {
