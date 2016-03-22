@@ -71,4 +71,9 @@ public interface BaseCaptureInterface {
      * @return true if we only want to take photographs instead of video capture
      */
     boolean useStillshot();
+
+    void toggleFlashMode();
+
+    @BaseCaptureActivity.FlashMode
+    int getFlashMode();
 }

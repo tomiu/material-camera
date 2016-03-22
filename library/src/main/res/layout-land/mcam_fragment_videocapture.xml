@@ -13,7 +13,7 @@
         android:layout_toLeftOf="@+id/controlsFrame"
         android:layout_toStartOf="@+id/controlsFrame" />
 
-    <FrameLayout
+    <RelativeLayout
         android:id="@+id/controlsFrame"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -31,7 +31,8 @@
             android:id="@+id/facing"
             android:layout_width="@dimen/mcam_action_icon_size_smaller"
             android:layout_height="@dimen/mcam_action_icon_size_smaller"
-            android:layout_gravity="center_horizontal|top"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
             android:background="@drawable/mcam_circle_selector"
             android:padding="@dimen/mcam_content_inset_less"
             android:scaleType="fitXY"
@@ -39,10 +40,22 @@
             tools:src="@drawable/mcam_camera_front" />
 
         <ImageButton
+            android:id="@+id/flash"
+            android:layout_width="@dimen/mcam_action_icon_size_smaller"
+            android:layout_height="@dimen/mcam_action_icon_size_smaller"
+            android:layout_below="@+id/facing"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/mcam_circle_selector"
+            android:padding="@dimen/mcam_content_inset_less"
+            android:scaleType="fitXY"
+            tools:ignore="ContentDescription"
+            tools:src="@drawable/mcam_action_flash" />
+
+        <ImageButton
             android:id="@+id/video"
             android:layout_width="@dimen/mcam_action_icon_size"
             android:layout_height="@dimen/mcam_action_icon_size"
-            android:layout_gravity="center"
+            android:layout_centerInParent="true"
             android:background="@drawable/mcam_circle_selector"
             android:padding="@dimen/mcam_content_inset_less"
             android:scaleType="fitXY"
@@ -54,7 +67,7 @@
             android:visibility="gone"
             android:layout_width="@dimen/mcam_action_icon_size"
             android:layout_height="@dimen/mcam_action_icon_size"
-            android:layout_gravity="center"
+            android:layout_centerInParent="true"
             android:background="@drawable/mcam_circle_selector"
             android:padding="@dimen/mcam_content_inset_less"
             android:scaleType="fitXY"
@@ -65,12 +78,13 @@
             android:id="@+id/recordDuration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|bottom"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
             android:fontFamily="sans-serif-medium"
             android:text="@string/mcam_defaultDuration"
             android:textColor="#fff"
             android:textSize="@dimen/mcam_regular_content_fontsize" />
 
-    </FrameLayout>
+    </RelativeLayout>
 
 </RelativeLayout>
