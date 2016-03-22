@@ -26,7 +26,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import java.io.File;
 
 import static android.app.Activity.RESULT_CANCELED;
-import static com.afollestad.materialcamera.internal.BaseCaptureActivity.CAMERA_POSITION_BACK;
+import static com.afollestad.materialcamera.internal.BaseCaptureActivity.*;
 
 /**
  * @author Aidan Follestad (afollestad)
@@ -40,6 +40,7 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
     protected ImageButton mButtonVideo;
     protected ImageButton mButtonStillshot;
     protected ImageButton mButtonFacing;
+    protected ImageButton mButtonFlash;
     protected TextView mRecordDuration;
 
     private boolean mIsRecording;
@@ -47,6 +48,9 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
     protected BaseCaptureInterface mInterface;
     protected Handler mPositionHandler;
     protected MediaRecorder mMediaRecorder;
+
+    @BaseCaptureActivity.FlashMode
+    private int mFlashMode = FLASH_MODE_AUTO;
 
     protected static void LOG(Object context, String message) {
         Log.d(context instanceof Class<?> ? ((Class<?>) context).getSimpleName() :
@@ -99,10 +103,13 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
             mButtonVideo.setImageDrawable(VC.get(this, R.drawable.mcam_action_capture));
             mInterface.setDidRecord(false);
         }
+        mButtonFlash = (ImageButton) view.findViewById(R.id.flash);
+        setupFlashMode();
 
         mButtonVideo.setOnClickListener(this);
         mButtonStillshot.setOnClickListener(this);
         mButtonFacing.setOnClickListener(this);
+        mButtonFlash.setOnClickListener(this);
 
         final int primaryColor = getArguments().getInt(CameraIntentKey.PRIMARY_COLOR);
         view.findViewById(R.id.controlsFrame).setBackgroundColor(CameraUtil.darkenColor(primaryColor));
@@ -115,6 +122,7 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
             mRecordDuration.setVisibility(View.GONE);
             mButtonStillshot.setVisibility(View.VISIBLE);
             mButtonStillshot.setImageDrawable(VC.get(this, R.drawable.mcam_action_stillshot));
+            mButtonFlash.setVisibility(View.VISIBLE);
         }
     }
 
@@ -124,6 +132,7 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
         mButtonVideo = null;
         mButtonStillshot = null;
         mButtonFacing = null;
+        mButtonFlash = null;
         mRecordDuration = null;
     }
 
@@ -297,6 +306,26 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
             }
         } else if (id == R.id.stillshot) {
             takeStillshot();
+        } else if (id == R.id.flash) {
+            mInterface.toggleFlashMode();
+            setupFlashMode();
         }
+    }
+
+    private void setupFlashMode() {
+        final int res;
+        switch (mInterface.getFlashMode()) {
+            case FLASH_MODE_AUTO:
+                res = R.drawable.mcam_action_flash_auto;
+                break;
+            case FLASH_MODE_ALWAYS_ON:
+                res = R.drawable.mcam_action_flash;
+                break;
+            case FLASH_MODE_OFF:
+            default:
+                res = R.drawable.mcam_action_flash_off;
+        }
+
+        mButtonFlash.setImageDrawable(VC.get(this, res));
     }
 }

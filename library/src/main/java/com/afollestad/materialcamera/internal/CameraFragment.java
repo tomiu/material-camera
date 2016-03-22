@@ -27,9 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-import static com.afollestad.materialcamera.internal.BaseCaptureActivity.CAMERA_POSITION_BACK;
-import static com.afollestad.materialcamera.internal.BaseCaptureActivity.CAMERA_POSITION_FRONT;
-import static com.afollestad.materialcamera.internal.BaseCaptureActivity.CAMERA_POSITION_UNKNOWN;
+import static com.afollestad.materialcamera.internal.BaseCaptureActivity.*;
 
 /**
  * @author Aidan Follestad (afollestad)
@@ -45,6 +43,7 @@ public class CameraFragment extends BaseCameraFragment implements View.OnClickLi
     private Camera mCamera;
     private Point mWindowSize;
     private int mDisplayOrientation;
+    boolean mFlashSupported;
 
     public static CameraFragment newInstance() {
         CameraFragment fragment = new CameraFragment();
@@ -197,6 +196,8 @@ public class CameraFragment extends BaseCameraFragment implements View.OnClickLi
             parameters.setPreviewSize(previewSize.width, previewSize.height);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
                 parameters.setRecordingHint(true);
+
+            mFlashSupported = parameters.getSupportedFlashModes() != null; // TODO which supported
 
             Camera.Size mStillShotSize = getHighestSupportedStillShotSize(parameters.getSupportedPictureSizes());
             parameters.setPictureSize(mStillShotSize.width, mStillShotSize.height);
@@ -427,10 +428,31 @@ public class CameraFragment extends BaseCameraFragment implements View.OnClickLi
         stopCounter();
     }
 
+    private void setupFlashMode() {
+        if (mFlashSupported) {
+            String flashMode;
+            switch (mInterface.getFlashMode()) {
+                case FLASH_MODE_AUTO:
+                    flashMode = Camera.Parameters.FLASH_MODE_AUTO;
+                    break;
+                case FLASH_MODE_ALWAYS_ON:
+                    flashMode = Camera.Parameters.FLASH_MODE_ON;
+                    break;
+                case FLASH_MODE_OFF:
+                default:
+                    flashMode = Camera.Parameters.FLASH_MODE_OFF;
+                    break;
+            }
+            Camera.Parameters parameters = mCamera.getParameters();
+            parameters.setFlashMode(flashMode);
+            mCamera.setParameters(parameters);
+        }
+    }
+
     @Override
     public void takeStillshot() {
         super.takeStillshot();
-        //TODO: add flash light
+        setupFlashMode();
 
         //https://github.com/josnidhin/Android-Camera-Example/blob/master/src/com/example/cam/CamTestActivity.java
         final String TAG = "takeStillShot";

@@ -53,9 +53,7 @@ import java.util.Locale;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import static com.afollestad.materialcamera.internal.BaseCaptureActivity.CAMERA_POSITION_BACK;
-import static com.afollestad.materialcamera.internal.BaseCaptureActivity.CAMERA_POSITION_FRONT;
-import static com.afollestad.materialcamera.internal.BaseCaptureActivity.CAMERA_POSITION_UNKNOWN;
+import static com.afollestad.materialcamera.internal.BaseCaptureActivity.*;
 
 /**
  * @author Aidan Follestad (afollestad)
@@ -765,7 +763,7 @@ public class Camera2Fragment extends BaseCameraFragment implements View.OnClickL
             // Use the same AE and AF modes as the preview.
             captureBuilder.set(CaptureRequest.CONTROL_AF_MODE,
                     CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-            setAutoFlash(captureBuilder);
+            setFlashMode(captureBuilder);
 
             // Orientation
             int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
@@ -799,7 +797,7 @@ public class Camera2Fragment extends BaseCameraFragment implements View.OnClickL
             // Reset the auto-focus trigger
             mPreviewBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,
                     CameraMetadata.CONTROL_AF_TRIGGER_CANCEL);
-            setAutoFlash(mPreviewBuilder);
+            setFlashMode(mPreviewBuilder);
             mPreviewSession.capture(mPreviewBuilder.build(), mCaptureCallback,
                     mBackgroundHandler);
             // After this, the camera will go back to the normal state of preview.
@@ -811,10 +809,22 @@ public class Camera2Fragment extends BaseCameraFragment implements View.OnClickL
         }
     }
 
-    private void setAutoFlash(CaptureRequest.Builder requestBuilder) {
+    private void setFlashMode(CaptureRequest.Builder requestBuilder) {
         if (mFlashSupported) {
-            requestBuilder.set(CaptureRequest.CONTROL_AE_MODE,
-                    CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
+            int aeMode;
+            switch (mInterface.getFlashMode()) {
+                case FLASH_MODE_AUTO:
+                    aeMode = CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH;
+                    break;
+                case FLASH_MODE_ALWAYS_ON:
+                    aeMode = CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH;
+                    break;
+                case FLASH_MODE_OFF:
+                default:
+                    aeMode = CaptureRequest.CONTROL_AE_MODE_OFF;
+                    break;
+            }
+            requestBuilder.set(CaptureRequest.CONTROL_AE_MODE, aeMode);
         }
     }
 
