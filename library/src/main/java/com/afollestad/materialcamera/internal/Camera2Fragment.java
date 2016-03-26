@@ -80,6 +80,7 @@ public class Camera2Fragment extends BaseCameraFragment implements View.OnClickL
     private Size mVideoSize;
     @Degrees.DegreeUnits
     private int mDisplayOrientation;
+    private boolean mAfAvailable;
 
     /**
      * {@link CaptureRequest.Builder} for the camera preview
@@ -509,6 +510,17 @@ public class Camera2Fragment extends BaseCameraFragment implements View.OnClickL
             @Degrees.DegreeUnits
             final int sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
 
+            mAfAvailable = false;
+            int[] afModes = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES);
+            if (afModes != null) {
+                for (int i : afModes) {
+                    if (i != 0) {
+                        mAfAvailable = true;
+                        break;
+                    }
+                }
+            }
+
             configureTransform(width, height);
 
             if (mInterface.useStillshot()) {
@@ -891,10 +903,16 @@ public class Camera2Fragment extends BaseCameraFragment implements View.OnClickL
 
     private void lockFocus() {
         try {
-            // This is how to tell the camera to lock focus.
-            mPreviewBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_START);
-            // Tell #mCaptureCallback to wait for the lock.
-            mState = STATE_WAITING_LOCK;
+            if (mAfAvailable) {
+                // This is how to tell the camera to lock focus.
+                mPreviewBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_START);
+                // Tell #mCaptureCallback to wait for the lock.
+                mState = STATE_WAITING_LOCK;
+            } else {
+                runPrecaptureSequence();
+                return;
+            }
+
             setFlashMode(mPreviewBuilder);
 
             mPreviewSession.capture(mPreviewBuilder.build(), mCaptureCallback, mBackgroundHandler);
