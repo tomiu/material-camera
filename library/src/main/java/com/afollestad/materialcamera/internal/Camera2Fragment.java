@@ -259,7 +259,8 @@ public class Camera2Fragment extends BaseCameraFragment implements View.OnClickL
                     Integer aeState = result.get(CaptureResult.CONTROL_AE_STATE);
                     if (aeState == null ||
                             aeState == CaptureResult.CONTROL_AE_STATE_PRECAPTURE ||
-                            aeState == CaptureRequest.CONTROL_AE_STATE_FLASH_REQUIRED) {
+                            aeState == CaptureRequest.CONTROL_AE_STATE_FLASH_REQUIRED ||
+                            aeState == CameraMetadata.CONTROL_AE_STATE_CONVERGED) {
                         mState = STATE_WAITING_NON_PRECAPTURE;
                     }
                     break;
