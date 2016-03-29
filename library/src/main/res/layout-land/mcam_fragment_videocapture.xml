@@ -48,6 +48,7 @@
             android:background="@drawable/mcam_circle_selector"
             android:padding="@dimen/mcam_content_inset_less"
             android:scaleType="fitXY"
+            android:visibility="gone"
             tools:ignore="ContentDescription"
             tools:src="@drawable/mcam_action_flash" />
 

@@ -450,9 +450,12 @@ public class CameraFragment extends BaseCameraFragment implements View.OnClickLi
     }
 
     @Override
-    public void takeStillshot() {
-        super.takeStillshot();
+    public void onPreferencesUpdated() {
         setupFlashMode();
+    }
+
+    @Override
+    public void takeStillshot() {
 
         //https://github.com/josnidhin/Android-Camera-Example/blob/master/src/com/example/cam/CamTestActivity.java
         final String TAG = "takeStillShot";
